@@ -1,0 +1,1 @@
+export { githubRepoService } from './githubRepoService';
