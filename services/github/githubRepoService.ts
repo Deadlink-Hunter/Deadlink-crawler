@@ -29,7 +29,6 @@ export const githubRepoService = {
 
       while ((match = githubRepoLinkPattern.exec(readmeContent)) !== null) {
         const url = match[2].trim();
-        // Filter out anchor links and mailto links if needed
         if (url && !url.startsWith("#") && !url.startsWith("mailto:")) {
           linksInREADME.push(url);
         }
@@ -37,7 +36,6 @@ export const githubRepoService = {
 
       return linksInREADME;
     } catch (error) {
-      // Handle case where README doesn't exist or API error
       console.error(
         `Error fetching README for ${repository.full_name}:`,
         error
