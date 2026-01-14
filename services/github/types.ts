@@ -21,3 +21,17 @@ export interface GithubSearchResponse {
   total_count: number;
   items: GithubRepository[];
 }
+
+export interface GithubReadmeResponse {
+  content: string;
+  encoding: string;
+  name: string;
+  path: string;
+  sha: string;
+  size: number;
+  url: string;
+  html_url: string;
+  git_url: string;
+  download_url: string;
+  type: string;
+}
