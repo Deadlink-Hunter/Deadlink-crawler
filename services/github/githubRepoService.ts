@@ -21,16 +21,13 @@ export const githubRepoService = {
     repository: GithubRepository
   ): Promise<string[]> => {
     try {
-      // Get README content using the same pattern as getRandomRepository
       const readmeContent = await getRepositoryReadme(repository.full_name);
 
-      // Extract all links from markdown
-      // Pattern matches: [text](url) and [text](url "title")
-      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+      const githubRepoLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
       const linksInREADME: string[] = [];
       let match;
 
-      while ((match = linkRegex.exec(readmeContent)) !== null) {
+      while ((match = githubRepoLinkPattern.exec(readmeContent)) !== null) {
         const url = match[2].trim();
         // Filter out anchor links and mailto links if needed
         if (url && !url.startsWith("#") && !url.startsWith("mailto:")) {
