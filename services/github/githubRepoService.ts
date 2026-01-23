@@ -1,5 +1,5 @@
-import { MAX_GITHUB_SEARCH_PAGES } from "../../constants/github";
-import { getRandomNumber, getRandomItem } from "../../utils/random";
+import { MAX_GITHUB_SEARCH_PAGES } from "@/constants/github";
+import { getRandomNumber, getRandomItem } from "@/utils/random";
 import { GithubRepository, GithubSearchResponse } from "./types";
 import { searchGithubRepositories, getRepositoryReadme } from "./helpers";
 

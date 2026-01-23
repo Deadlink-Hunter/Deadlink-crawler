@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { API_TIMEOUT } from '../../constants/api';
+import { API_TIMEOUT } from '@/constants/api';
 
 const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({

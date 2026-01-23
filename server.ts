@@ -1,6 +1,6 @@
 import Fastify from "fastify";
-import { githubRepoService } from "./services";
-import { getRepositoryReadme } from "./services/github/helpers";
+import { githubRepoService } from "@/services";
+import { getRepositoryReadme } from "@/services/github/helpers";
 
 const checkRandomRepo = async () => {
   const randomRepo = await githubRepoService.getRandomRepository();
