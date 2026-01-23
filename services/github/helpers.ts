@@ -1,5 +1,5 @@
-import { apiClient } from "../api";
-import { GITHUB_API_BASE_URL } from "../../constants/github";
+import { apiClient } from "@/services/api";
+import { GITHUB_API_BASE_URL } from "@/constants/github";
 import { GithubReadmeResponse, GithubSearchResponse } from "./types";
 
 export const searchGithubRepositories = async (
