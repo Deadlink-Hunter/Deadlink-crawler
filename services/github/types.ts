@@ -22,6 +22,11 @@ export interface GithubSearchResponse {
   items: GithubRepository[];
 }
 
+export interface ReadmeLink {
+  displayName: string;
+  url: string;
+}
+
 export interface GithubReadmeResponse {
   content: string;
   encoding: string;
