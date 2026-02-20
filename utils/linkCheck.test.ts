@@ -1,11 +1,14 @@
+import type { AxiosInstance } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { checkLinksInBatches } from "./linkCheck";
 
-const mockPost = vi.fn();
+const { mockPost } = vi.hoisted(() => ({
+  mockPost: vi.fn<AxiosInstance["post"]>(),
+}));
 
 vi.mock("@/services/api", () => ({
   apiClient: {
-    post: (...args: unknown[]) => mockPost(...args),
+    post: mockPost,
   },
 }));
 
@@ -49,15 +52,12 @@ describe("checkLinksInBatches", () => {
     ]);
   });
 
-  it("batches links when more than 10", async () => {
-    const batch1 = Array.from({ length: 10 }, (_, i) => ({
+  it("splits 11 links into 2 server calls and merges into single result", async () => {
+    const allLinks = Array.from({ length: 11 }, (_, i) => ({
       displayName: `Link ${i}`,
       url: `https://example${i}.com`,
     }));
-    const batch2 = [
-      { displayName: "Link 10", url: "https://example10.com" },
-    ];
-    const allLinks = [...batch1, ...batch2];
+    const [batch1, batch2] = [allLinks.slice(0, 10), allLinks.slice(10)];
 
     mockPost
       .mockResolvedValueOnce({
@@ -96,10 +96,64 @@ describe("checkLinksInBatches", () => {
     expect(result[10].isBroken).toBe(true);
   });
 
+  it("makes exactly one server call when there are exactly 10 links", async () => {
+    const links = Array.from({ length: 10 }, (_, i) => ({
+      displayName: `Link ${i}`,
+      url: `https://example${i}.com`,
+    }));
+
+    mockPost.mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          results: links.map((l) => ({
+            url: l.url,
+            isBroken: false,
+            responseTime: 50,
+          })),
+          summary: { total: 10, broken: 0, working: 10 },
+        },
+      },
+    });
+
+    const result = await checkLinksInBatches(links);
+
+    expect(mockPost).toHaveBeenCalledTimes(1);
+    expect(result).toHaveLength(10);
+    expect(result[9].urlDisplayNameInTheREADME).toBe("Link 9");
+  });
+
   it("returns empty array when no links provided", async () => {
     const result = await checkLinksInBatches([]);
 
     expect(result).toEqual([]);
     expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it("throws when a batch fails after a previous batch succeeded", async () => {
+    const allLinks = Array.from({ length: 11 }, (_, i) => ({
+      displayName: `Link ${i}`,
+      url: `https://example${i}.com`,
+    }));
+    const batch1 = allLinks.slice(0, 10);
+
+    mockPost
+      .mockResolvedValueOnce({
+        data: {
+          success: true,
+          data: {
+            results: batch1.map((l) => ({
+              url: l.url,
+              isBroken: false,
+              responseTime: 50,
+            })),
+            summary: { total: 10, broken: 0, working: 10 },
+          },
+        },
+      })
+      .mockRejectedValueOnce(new Error("API error"));
+
+    await expect(checkLinksInBatches(allLinks)).rejects.toThrow("API error");
+    expect(mockPost).toHaveBeenCalledTimes(2);
   });
 });
