@@ -1,11 +1,14 @@
+import { AxiosInstance } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { brokenLinkCheckerService } from "./brokenLinkCheckerService";
 
-const mockPost = vi.fn();
+const { mockPost } = vi.hoisted(() => ({
+  mockPost: vi.fn<AxiosInstance["post"]>(),
+}));
 
 vi.mock("@/services/api", () => ({
   apiClient: {
-    post: (...args: unknown[]) => mockPost(...args),
+    post: mockPost,
   },
 }));
 
@@ -36,10 +39,10 @@ describe("brokenLinkCheckerService", () => {
         expect.stringContaining("/api/check-url"),
         { url: "https://example.com" }
       );
-      expect(result).toEqual(mockResponse);
-      expect(result.success).toBe(true);
-      expect(result.data.isBroken).toBe(false);
-      expect(result.data.url).toBe("https://example.com");
+      expect(result).toMatchObject({
+        success: true,
+        data: { isBroken: false, url: "https://example.com" },
+      });
     });
 
     it("returns broken status when URL is invalid", async () => {
@@ -59,8 +62,9 @@ describe("brokenLinkCheckerService", () => {
         "https://invalid.example"
       );
 
-      expect(result.data.isBroken).toBe(true);
-      expect(result.data.error).toBe("Request failed");
+      expect(result).toMatchObject({
+        data: { isBroken: true, error: "Request failed" },
+      });
     });
   });
 
@@ -100,11 +104,14 @@ describe("brokenLinkCheckerService", () => {
           urls: ["https://example.com", "https://broken.com"],
         }
       );
-      expect(result.data.results).toHaveLength(2);
-      expect(result.data.summary).toEqual({
-        total: 2,
-        broken: 1,
-        working: 1,
+      expect(result).toMatchObject({
+        data: {
+          results: [
+            { url: "https://example.com", isBroken: false },
+            { url: "https://broken.com", isBroken: true },
+          ],
+          summary: { total: 2, broken: 1, working: 1 },
+        },
       });
     });
 
