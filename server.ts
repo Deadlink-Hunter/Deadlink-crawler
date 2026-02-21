@@ -1,20 +1,25 @@
 import Fastify from "fastify";
 import { githubRepoService } from "@/services";
-import { getRepositoryReadme } from "@/services/github/helpers";
+import { checkLinksInBatches } from "@/utils/linkCheck";
 
 const checkRandomRepo = async () => {
   const randomRepo = await githubRepoService.getRandomRepository();
   const repoName = randomRepo.full_name;
   const links = await githubRepoService.getLinksFromReadme(randomRepo);
   console.log("\n=== Links Found in README ===" + repoName);
-  // TODO - add a check that those links are valid or not based on their response, in here weshould call the other backend
-  console.log(links);
+  console.log(
+    links.map((l) => `${l.displayName}: ${l.url}`)
+  );
 
-  // TODO: After that we checked which url is broken and which is not create somewhat this data structor:
-  /**
-   * [{urlDisplayNameInTheREADME : "name", fullUrl : "http:...", isBroken : boolean}]
-   *
-   *  **/
+  if (links.length === 0) {
+    console.log("No links to check.");
+    return;
+  }
+
+  const allResults = await checkLinksInBatches(links);
+
+  console.log("\n=== Link Check Results ===");
+  console.log(JSON.stringify(allResults, null, 2));
 };
 
 const fastify = Fastify({

@@ -1,0 +1,2 @@
+export const BROKEN_LINK_CHECKER_BASE_URL = process.env.BROKEN_LINK_CHECKER_BASE_URL || 'http://localhost:3000';
+export const BROKEN_LINK_CHECKER_MAX_URLS_PER_REQUEST = 10;
