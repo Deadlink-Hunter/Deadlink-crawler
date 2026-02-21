@@ -12,9 +12,8 @@ const mapBatchResultsToDisplayResults = (
   apiResults: UrlCheckResult[]
 ): LinkCheckDisplayResult[] => {
   return apiResults.map((urlCheckResult, index) => {
-    const link = links[index];
     return {
-      urlDisplayNameInTheREADME: link.displayName,
+      urlDisplayNameInTheREADME: links[index].displayName,
       fullUrl: urlCheckResult.url,
       isBroken: urlCheckResult.isBroken,
     };
