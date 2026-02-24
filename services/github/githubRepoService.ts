@@ -1,11 +1,10 @@
-import { MAX_GITHUB_SEARCH_PAGES } from "@/constants/github";
-import { getRandomNumber, getRandomItem } from "@/utils/random";
-import {
-  GithubRepository,
-  GithubSearchResponse,
-  ReadmeLink,
-} from "./types";
-import { searchGithubRepositories, getRepositoryReadme } from "./helpers";
+import { MAX_GITHUB_SEARCH_PAGES } from '@/constants/github';
+import { getRandomNumber, getRandomItem } from '@/utils/random';
+import { GithubRepository, GithubSearchResponse, ReadmeLink } from './types';
+import { searchGithubRepositories, getRepositoryReadme } from './helpers';
+
+const ABSOLUTE_URL_REGEX = /^(?:[a-z]+:)?\/\//i;
+const TRAILING_SLASHES_REGEX = /\/+$/;
 
 export const githubRepoService = {
   getRandomRepository: async (): Promise<GithubRepository> => {
@@ -17,12 +16,12 @@ export const githubRepoService = {
   },
 
   getRepositoriesByPage: async (
-    page: number = 1
+    page: number = 1,
   ): Promise<GithubSearchResponse> => {
     return searchGithubRepositories(page);
   },
   getLinksFromReadme: async (
-    repository: GithubRepository
+    repository: GithubRepository,
   ): Promise<ReadmeLink[]> => {
     try {
       const readmeContent = await getRepositoryReadme(repository.full_name);
@@ -33,9 +32,15 @@ export const githubRepoService = {
 
       while ((match = githubRepoLinkPattern.exec(readmeContent)) !== null) {
         const displayName = match[1].trim();
-        const url = match[2].trim();
-        if (url && !url.startsWith("#") && !url.startsWith("mailto:")) {
-          linksInREADME.push({ displayName, url });
+        const rawUrl = match[2].trim();
+
+        if (
+          rawUrl &&
+          !rawUrl.startsWith('#') &&
+          !rawUrl.startsWith('mailto:')
+        ) {
+          const resolvedUrl = getFullUrlPath(repository, rawUrl);
+          linksInREADME.push({ displayName, url: resolvedUrl });
         }
       }
 
@@ -43,9 +48,27 @@ export const githubRepoService = {
     } catch (error) {
       console.error(
         `Error fetching README for ${repository.full_name}:`,
-        error
+        error,
       );
       return [];
     }
   },
+};
+
+const getFullUrlPath = (
+  repository: GithubRepository,
+  rawUrl: string,
+): string => {
+  if (ABSOLUTE_URL_REGEX.test(rawUrl)) {
+    return rawUrl;
+  }
+
+  const repoBase = repository.html_url.replace(TRAILING_SLASHES_REGEX, '');
+  const base = `${repoBase}/blob/master/`;
+
+  try {
+    return new URL(rawUrl, base).href;
+  } catch {
+    return rawUrl;
+  }
 };
