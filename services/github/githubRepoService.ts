@@ -37,7 +37,9 @@ export const githubRepoService = {
         if (
           rawUrl &&
           !rawUrl.startsWith('#') &&
-          !rawUrl.startsWith('mailto:')
+          !rawUrl.startsWith('mailto:') &&
+          !rawUrl.includes('localhost') &&
+          !rawUrl.includes('127.0.0.1')
         ) {
           const resolvedUrl = getFullUrlPath(repository, rawUrl);
           linksInREADME.push({ displayName, url: resolvedUrl });
