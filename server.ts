@@ -1,25 +1,54 @@
 import Fastify from "fastify";
-import { githubRepoService } from "@/services";
+import { githubRepoService, githubUserService } from "@/services";
 import { checkLinksInBatches } from "@/utils/linkCheck";
 
 const checkRandomRepo = async () => {
   const randomRepo = await githubRepoService.getRandomRepository();
   const repoName = randomRepo.full_name;
   const links = await githubRepoService.getLinksFromReadme(randomRepo);
-  console.log("\n=== Links Found in README ===" + repoName);
-  console.log(
-    links.map((l) => `${l.displayName}: ${l.url}`)
-  );
-
+  console.log("\n=== Checking Random Repository: " + repoName + " ===");
+  
   if (links.length === 0) {
-    console.log("No links to check.");
+    console.log("No links found in README.");
     return;
   }
 
-  const allResults = await checkLinksInBatches(links);
+  console.log(`Found ${links.length} links. Checking for dead links...`);
+  const checkResults = await checkLinksInBatches(links);
+  
+  const deadLinks = checkResults.filter(r => r.isBroken);
+  if (deadLinks.length > 0) {
+    console.log(`❌ Found ${deadLinks.length} dead links:`);
+    deadLinks.forEach(l => console.log(`  - ${l.fullUrl}`));
+  } else {
+    console.log("✅ No dead links found.");
+  }
+};
 
-  console.log("\n=== Link Check Results ===");
-  console.log(JSON.stringify(allResults, null, 2));
+const checkUserRepos = async (username: string) => {
+  console.log(`\n=== Checking all repositories for user: ${username} ===`);
+  const results = await githubUserService.getAllLinksFromUserRepos(username);
+
+  for (const repoResult of results) {
+    const { repository, links } = repoResult;
+    console.log(`\n--- Repository: ${repository} ---`);
+    
+    if (links.length === 0) {
+      console.log("No links found in README.");
+      continue;
+    }
+
+    console.log(`Found ${links.length} links. Checking for dead links...`);
+    const checkResults = await checkLinksInBatches(links);
+    
+    const deadLinks = checkResults.filter(r => r.isBroken);
+    if (deadLinks.length > 0) {
+      console.log(`❌ Found ${deadLinks.length} dead links:`);
+      deadLinks.forEach(l => console.log(`  - ${l.fullUrl}`));
+    } else {
+      console.log("✅ No dead links found.");
+    }
+  }
 };
 
 const fastify = Fastify({
@@ -35,6 +64,7 @@ const start = async () => {
   console.log("\nServer is running on port 5000");
 
   checkRandomRepo();
+  checkUserRepos('Tamir198');
 };
 
 start();
