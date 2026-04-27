@@ -1,7 +1,7 @@
 import { MAX_GITHUB_SEARCH_PAGES } from '@/constants/github';
 import { getRandomNumber, getRandomItem } from '@/utils/random';
 import { GithubRepository, GithubSearchResponse, ReadmeLink } from './types';
-import { searchGithubRepositories, getRepositoryReadme } from './helpers';
+import { searchGithubRepositories, getRepositoryReadme } from '../api/helpers';
 
 const ABSOLUTE_URL_REGEX = /^(?:[a-z]+:)?\/\//i;
 const TRAILING_SLASHES_REGEX = /\/+$/;
