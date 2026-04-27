@@ -1,6 +1,6 @@
 import { apiClient } from "@/services/api";
 import { GITHUB_API_BASE_URL } from "@/constants/github";
-import { GithubReadmeResponse, GithubSearchResponse } from "./types";
+import { GithubReadmeResponse, GithubSearchResponse } from "../github/types";
 
 export const searchGithubRepositories = async (
   page: number
