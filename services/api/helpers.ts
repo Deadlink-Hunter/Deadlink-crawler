@@ -1,6 +1,6 @@
 import { apiClient } from "@/services/api";
 import { GITHUB_API_BASE_URL } from "@/constants/github";
-import { GithubReadmeResponse, GithubRepository, GithubSearchResponse } from "./types";
+import { GithubReadmeResponse, GithubRepository, GithubSearchResponse } from "../github/types";
 
 const getRepositoryTopics = (repo: any): string[] => {
   if (repo.topics?.length) {
