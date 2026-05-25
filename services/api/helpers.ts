@@ -58,7 +58,7 @@ export const getGithubRepository = async (
     `${GITHUB_API_BASE_URL}/repos/${fullName}`,
     {
       headers: {
-        Accept: "application/vnd.github.mercy-preview+json",
+        Accept: "application/vnd.github+json",
       },
     }
   );
