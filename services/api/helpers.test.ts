@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getGithubRepository } from "./helpers";
-import { GITHUB_API_BASE_URL } from "@/constants/github";
 import type { GithubRepository } from "../github/types";
 
 const { mockGet } = vi.hoisted(() => ({
@@ -19,7 +18,7 @@ describe("getGithubRepository", () => {
   });
 
   it("should fetch repository and return mapped GithubRepository object", async () => {
-    const mockRawResponse = {
+    const MOCK_RAW_RESPONSE = {
       id: 1234567,
       name: "deadlink-crawler",
       full_name: "user/deadlink-crawler",
@@ -38,7 +37,7 @@ describe("getGithubRepository", () => {
       topics: ["crawler", "links"],
     };
 
-    mockGet.mockResolvedValue({ data: mockRawResponse });
+    mockGet.mockResolvedValue({ data: MOCK_RAW_RESPONSE });
 
     const result = await getGithubRepository("user/deadlink-crawler");
 
