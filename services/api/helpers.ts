@@ -1,6 +1,10 @@
 import { apiClient } from "@/services/api";
-import { GITHUB_API_BASE_URL } from "@/constants/github";
-import { GithubReadmeResponse, GithubRepository, GithubSearchResponse } from "../github/types";
+import { GITHUB_API_BASE_URL, REPOS_ENDPOINT } from "@/constants/github";
+import {
+  GithubReadmeResponse,
+  GithubRepository,
+  GithubSearchResponse,
+} from "../github/types";
 
 const getRepositoryTopics = (repo: any): string[] => {
   if (repo.topics?.length) {
@@ -12,7 +16,7 @@ const getRepositoryTopics = (repo: any): string[] => {
   return repo.source?.topics ?? [];
 };
 
-const mapGithubRepository = (repo: any): GithubRepository => {
+const mapToGithubRepository = (repo: any): GithubRepository => {
   return {
     id: repo.id,
     name: repo.name,
@@ -55,21 +59,21 @@ export const getGithubRepository = async (
   fullName: string
 ): Promise<GithubRepository> => {
   const response = await apiClient.get<any>(
-    `${GITHUB_API_BASE_URL}/repos/${fullName}`,
+    `${GITHUB_API_BASE_URL}/${REPOS_ENDPOINT}/${fullName}`,
     {
       headers: {
         Accept: "application/vnd.github+json",
       },
     }
   );
-  return mapGithubRepository(response.data);
+  return mapToGithubRepository(response.data);
 };
 
 export const getRepositoryReadme = async (
   fullName: string
 ): Promise<string> => {
   const response = await apiClient.get<GithubReadmeResponse>(
-    `${GITHUB_API_BASE_URL}/repos/${fullName}/readme`,
+    `${GITHUB_API_BASE_URL}/${REPOS_ENDPOINT}/${fullName}/readme`,
     {
       headers: {
         Accept: "application/vnd.github.v3+json",
