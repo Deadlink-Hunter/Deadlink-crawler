@@ -1,7 +1,11 @@
 import { MAX_GITHUB_SEARCH_PAGES } from '@/constants/github';
 import { getRandomNumber, getRandomItem } from '@/utils/random';
 import { GithubRepository, GithubSearchResponse, ReadmeLink } from './types';
-import { searchGithubRepositories, getRepositoryReadme } from '../api/helpers';
+import {
+  searchGithubRepositories,
+  getRepositoryReadme,
+  getGithubRepository,
+} from '../api/helpers';
 
 const ABSOLUTE_URL_REGEX = /^(?:[a-z]+:)?\/\//i;
 const TRAILING_SLASHES_REGEX = /\/+$/;
@@ -19,6 +23,11 @@ export const githubRepoService = {
     page: number = 1,
   ): Promise<GithubSearchResponse> => {
     return searchGithubRepositories(page);
+  },
+  getRepoByName: async (
+    fullName: string,
+  ): Promise<GithubRepository> => {
+    return getGithubRepository(fullName);
   },
   getLinksFromReadme: async (
     repository: GithubRepository,
