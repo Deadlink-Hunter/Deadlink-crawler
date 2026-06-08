@@ -5,8 +5,9 @@ import {
   GithubRepository,
   GithubSearchResponse,
 } from "../github/types";
+import { GithubApiRepository } from "../github/apiTypes";
 
-const getRepositoryTopics = (repo: any): string[] => {
+const getRepositoryTopics = (repo: GithubApiRepository): string[] => {
   if (repo.topics?.length) {
     return repo.topics;
   }
@@ -16,7 +17,7 @@ const getRepositoryTopics = (repo: any): string[] => {
   return repo.source?.topics ?? [];
 };
 
-const mapToGithubRepository = (repo: any): GithubRepository => {
+const mapToGithubRepository = (repo: GithubApiRepository): GithubRepository => {
   return {
     id: repo.id,
     name: repo.name,
@@ -58,7 +59,7 @@ export const searchGithubRepositories = async (
 export const getGithubRepository = async (
   fullName: string
 ): Promise<GithubRepository> => {
-  const response = await apiClient.get<any>(
+  const response = await apiClient.get<GithubApiRepository>(
     `${GITHUB_API_BASE_URL}/${REPOS_ENDPOINT}/${fullName}`,
     {
       headers: {
